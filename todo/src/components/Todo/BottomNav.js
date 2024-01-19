@@ -1,8 +1,17 @@
-function BottomNav() {
+function BottomNav({ itemsLeft }) {
     return (
-        <div className="flex justify-between text-lg">
-            <div className="italic">1 item left</div>
-            <div className="flex gap-10">
+        <div className="flex justify-between items-center text-lg">
+            <div className="">
+                {itemsLeft ? (
+                    <span className="italic">{itemsLeft} items left</span>
+                ) : (
+                    <>
+                        <span className="italic">No new task!</span>
+                        <span className="text-2xl">🤓</span>
+                    </>
+                )}
+            </div>
+            <div className="flex gap-10 ">
                 <button className="px-3 py-1 border-2 border-pink rounded-md duration-500  active:scale-95">
                     All
                 </button>
