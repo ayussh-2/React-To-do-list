@@ -8,6 +8,19 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
         let param = finish ? "add" : "sub";
         handleFinish(param);
     }
+
+    function time(tps) {
+        const tp = new Date(parseInt(tps));
+        let hrs = tp.getHours() > 12 ? tp.getHours() - 12 : tp.getHours();
+        let min =
+            tp.getMinutes().toString().length != 1
+                ? tp.getMinutes()
+                : `0${tp.getMinutes()}`;
+        let mer = tp.getHours() > 12 ? "PM" : "AM";
+        let final = `${hrs}:${min}${mer}`;
+        return final;
+    }
+
     return (
         <div
             className={`bg-white p-5 flex items-center justify-between rounded-md duration-500 border-2 my-3 ${
@@ -20,10 +33,15 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
                 </h4>
             </div>
             <div className="flex items-center gap-5">
+                <div id="timeOfTodo">
+                    <button className="text-black italic font-semibold">
+                        {time(timestamp)}
+                    </button>
+                </div>
                 <div id="del">
                     {/* <FontAwesomeIcon icon={["fab", "github"]} /> */}
                     <button
-                        className="px-3 py-1 bg-pink text-white rounded-md active:scale-95 duration-150"
+                        className="px-3 py-1 bg-pink text-white rounded-md active:scale-95 duration-150 font-normal"
                         onClick={() => handleDelete(timestamp)}
                     >
                         Delete

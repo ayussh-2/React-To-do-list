@@ -17,6 +17,7 @@ function App() {
             const newTodo = { [timeStamp]: task };
             setArr((prevArr) => [...prevArr, newTodo]);
             setTotalItems(totalItems + 1);
+            document.getElementById("todo").value = "";
         } else {
             alert("Please enter something!");
         }
@@ -36,10 +37,49 @@ function App() {
             setTotalItems(totalItems + 1);
         }
     }
+
+    function getDay() {
+        let date = new Date();
+        let day = date.getDay();
+        let month = date.getMonth();
+        let year = date.getFullYear();
+
+        const daysOfWeek = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ];
+        const months = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ];
+
+        let finalDate = `${date.getDate()} ${months[month]} ${year}, ${
+            daysOfWeek[day]
+        }`;
+        return finalDate;
+    }
     return (
         <div className="container p-40">
             <div className="text-center mb-10">
                 <h1 className="text-6xl text-pink italic">Todos</h1>
+            </div>
+            <div className="p-10 bg-white rounded-md my-5">
+                <div>{getDay()}</div>
             </div>
             <div className="card flex flex-col gap-10 bg-white rounded-md p-10">
                 <InputTodo handleTodos={updateTodos} />
@@ -51,6 +91,7 @@ function App() {
                                 handleDelete={DeleteTodo}
                                 timestamp={Object.keys(item)[0]}
                                 handleFinish={updateNoTodos}
+                                // timeOfTodo={12}
                             >
                                 {Object.values(item)[0]}
                             </Todos>
