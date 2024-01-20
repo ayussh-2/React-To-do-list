@@ -1,29 +1,18 @@
-function BottomNav({ itemsLeft }) {
+function BottomNav({ itemsLeft, children }) {
     return (
-        <div className="flex justify-between items-center text-lg font-nav">
-            <div className="">
+        <div className="md:flex justify-between items-center md:text-lg text-sm font-nav">
+            <div className="text-center my-5 md:my-0">
                 {itemsLeft ? (
                     <span className="">{itemsLeft} items left</span>
                 ) : (
                     <>
                         <span className="">No new task!</span>
-                        <span className="text-2xl">🤓</span>
+                        <span className="md:text-2xl text-base">🤓</span>
                     </>
                 )}
             </div>
-            <div className="flex gap-10 ">
-                <button className="px-3 py-1 border-2 border-pink rounded-md duration-500  active:scale-95">
-                    All
-                </button>
-                <button className="hover:activeBtn duration-100">Active</button>
-                <button className="hover:activeBtn duration-100">
-                    Completed
-                </button>
-            </div>
-            <div>
-                <button className="hover:activeBtn duration-100">
-                    Clear Completed
-                </button>
+            <div className="md:flex grid grid-cols-2 grid-rows-2 md:gap-10 gap-2">
+                {children}
             </div>
         </div>
     );

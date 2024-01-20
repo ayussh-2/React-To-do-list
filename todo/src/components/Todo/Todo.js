@@ -23,25 +23,22 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
 
     return (
         <div
-            className={`bg-white p-5 flex items-center justify-between rounded-md duration-300 font border-2 my-3 ${
+            className={`bg-white grid md:gap-3 md:p-5 p-2 items-center justify-between rounded-md duration-300 border-2 md:my-3 my-1 ${
                 finish ? "text-pink line-through border-pink" : ""
             }`}
         >
             <div id="title">
-                <h4 className="italic text-xl" id="1">
-                    {children}
-                </h4>
+                <h4 className="italic md:text-xl text-sm">{children}</h4>
             </div>
-            <div className="flex items-center gap-5">
-                <div id="timeOfTodo">
-                    <button className="text-pink font-normal">
-                        {time(timestamp)}
-                    </button>
-                </div>
+            <div id="timeOfTodo">
+                <button className="text-buttonink font-bold font-nav md:text-base text-xs">
+                    {time(timestamp)}
+                </button>
+            </div>
+            <div className="flex items-center justify-between ">
                 <div id="del">
-                    {/* <FontAwesomeIcon icon={["fab", "github"]} /> */}
                     <button
-                        className="px-3 py-1 bg-pink text-white rounded-md active:scale-95 duration-150 font-normal"
+                        className="md:px-3 py-1 px-2 bg-pink text-white rounded-md active:scale-95 duration-150 font-normal text-sm md:text-base"
                         onClick={() => handleDelete(timestamp)}
                     >
                         Delete

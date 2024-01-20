@@ -4,6 +4,7 @@ import InputTodo from "./components/Todo/Input";
 import BottomNav from "./components/Todo/BottomNav";
 import Todos from "./components/Todo/Todo";
 import PrevTodos from "./components/List/PrevTodos";
+import Btn from "./components/elements/Btn";
 
 function App() {
     const today = new Date();
@@ -13,7 +14,7 @@ function App() {
     const [arr, setArr] = useState([]);
     const [totalItems, setTotalItems] = useState(arr.length);
     const [selectedDay, setSelectedDay] = useState(tpToday);
-
+    const [btn, setBtn] = useState("all");
     const prevTodosTp = [
         1741996800000, 1730505600000, 1720396800000, 1727568000000,
         1733961600000, 1743811200000, 1724198400000, 1748908800000,
@@ -47,6 +48,10 @@ function App() {
         } else {
             setTotalItems(totalItems + 1);
         }
+    }
+
+    function navBtns(type) {
+        setBtn(type);
     }
 
     function getDay(tp, type) {
@@ -104,17 +109,17 @@ function App() {
     }
 
     return (
-        <div className="container px-40 py-10">
+        <div className="md:container px-2 md:px-40 py-10">
             <div className="text-center mb-10">
                 <h1 className="text-9xl text-pink font-title">Todos</h1>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex md:gap-4 gap-2">
                 <div
                     id="sideBar"
-                    className="w-3/12 mt-5 bg-white rounded-md p-10 "
+                    className="w-1/4 mt-5 bg-white rounded-md md:p-10 p-2"
                 >
-                    <div className="text-pink font-date text-3xl">
+                    <div className="text-pink font-date md:text-3xl text-xl">
                         Previously
                     </div>
                     <div className="px-2 flex flex-col-reverse gap-3 mt-5">
@@ -130,8 +135,8 @@ function App() {
                         ))}
                     </div>
                 </div>
-                <div id="main" className="w-9/12">
-                    <div className="p-10 bg-white rounded-md my-5 flex justify-between items-center font-date text-xl">
+                <div id="main" className="w-3/4">
+                    <div className="md:p-10 p-3 bg-white rounded-md md:my-5 mb-2 mt-5 flex justify-between items-center font-date md:text-xl text-sm">
                         <div>{getDay(null, "long")}</div>
                         <div>
                             <i
@@ -143,8 +148,9 @@ function App() {
                         </div>
                     </div>
 
-                    <div className="card flex flex-col gap-10 bg-white rounded-md p-10 font-main">
+                    <div className="card flex flex-col md:gap-10 gap-5 bg-white rounded-md md:p-10 font-main p-5">
                         <InputTodo handleTodos={updateTodos} />
+
                         <div className="flex flex-col-reverse">
                             {arr.length > 0 ? (
                                 arr.map((item) => (
@@ -158,13 +164,38 @@ function App() {
                                     </Todos>
                                 ))
                             ) : (
-                                <p className="italic text-center text-xl my-5 tracking-wider">
+                                <p className="italic text-center md:text-xl text-base my-5 tracking-wider">
                                     Add some todos!
                                 </p>
                             )}
                         </div>
 
-                        <BottomNav itemsLeft={totalItems} />
+                        <BottomNav itemsLeft={totalItems}>
+                            <Btn
+                                handleBtn={() => navBtns("all")}
+                                active={btn === "all"}
+                            >
+                                All
+                            </Btn>
+                            <Btn
+                                handleBtn={() => navBtns("act")}
+                                active={btn === "act"}
+                            >
+                                Active
+                            </Btn>
+                            <Btn
+                                handleBtn={() => navBtns("com")}
+                                active={btn === "com"}
+                            >
+                                Completed
+                            </Btn>
+                            <Btn
+                                handleBtn={() => navBtns("clr")}
+                                active={btn === "clr"}
+                            >
+                                Clear Completed
+                            </Btn>
+                        </BottomNav>
                     </div>
                 </div>
             </div>
