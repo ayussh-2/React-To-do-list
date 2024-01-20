@@ -1,12 +1,12 @@
 function BottomNav({ itemsLeft }) {
     return (
-        <div className="flex justify-between items-center text-lg">
+        <div className="flex justify-between items-center text-lg font-nav">
             <div className="">
                 {itemsLeft ? (
-                    <span className="italic">{itemsLeft} items left</span>
+                    <span className="">{itemsLeft} items left</span>
                 ) : (
                     <>
-                        <span className="italic">No new task!</span>
+                        <span className="">No new task!</span>
                         <span className="text-2xl">🤓</span>
                     </>
                 )}

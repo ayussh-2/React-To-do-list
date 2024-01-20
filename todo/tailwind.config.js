@@ -8,6 +8,12 @@ module.exports = {
                 text: "#f4f4f5",
             },
         },
+        fontFamily: {
+            nav: ["Poppins"],
+            main: ["Montserrat"],
+            title: ['"Grape Nuts"'],
+            date: ["Dosis"],
+        },
     },
     plugins: [],
 };

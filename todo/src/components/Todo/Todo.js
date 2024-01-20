@@ -13,7 +13,7 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
         const tp = new Date(parseInt(tps));
         let hrs = tp.getHours() > 12 ? tp.getHours() - 12 : tp.getHours();
         let min =
-            tp.getMinutes().toString().length != 1
+            tp.getMinutes().toString().length !== 1
                 ? tp.getMinutes()
                 : `0${tp.getMinutes()}`;
         let mer = tp.getHours() > 12 ? "PM" : "AM";
@@ -23,8 +23,8 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
 
     return (
         <div
-            className={`bg-white p-5 flex items-center justify-between rounded-md duration-500 border-2 my-3 ${
-                finish ? "text-pink line-through font-semibold border-pink" : ""
+            className={`bg-white p-5 flex items-center justify-between rounded-md duration-300 font border-2 my-3 ${
+                finish ? "text-pink line-through border-pink" : ""
             }`}
         >
             <div id="title">
@@ -34,7 +34,7 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
             </div>
             <div className="flex items-center gap-5">
                 <div id="timeOfTodo">
-                    <button className="text-black italic font-semibold">
+                    <button className="text-pink font-normal">
                         {time(timestamp)}
                     </button>
                 </div>
