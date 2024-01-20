@@ -6,13 +6,20 @@ import Todos from "./components/Todo/Todo";
 import PrevTodos from "./components/List/PrevTodos";
 
 function App() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tpToday = today.getTime();
+
     const [arr, setArr] = useState([]);
     const [totalItems, setTotalItems] = useState(arr.length);
+    const [selectedDay, setSelectedDay] = useState(tpToday);
+
     const prevTodosTp = [
         1741996800000, 1730505600000, 1720396800000, 1727568000000,
         1733961600000, 1743811200000, 1724198400000, 1748908800000,
         1729123200000, 1739059200000,
     ];
+    prevTodosTp.push(tpToday);
 
     function updateTodos() {
         let task = document.getElementById("todo").value;
@@ -80,7 +87,9 @@ function App() {
         return finalDate;
     }
 
-    function onSelectDay() {}
+    function onSelectDay(tp) {
+        setSelectedDay(tp);
+    }
 
     const [isDark, setIsDark] = useState(true);
     function activateDarkMode() {
@@ -108,13 +117,13 @@ function App() {
                     <div className="text-pink font-date text-3xl">
                         Previously
                     </div>
-                    <div className="px-2 flex flex-col gap-3 mt-5">
+                    <div className="px-2 flex flex-col-reverse gap-3 mt-5">
                         {prevTodosTp.map((tp) => (
                             <PrevTodos
                                 key={tp}
                                 id={tp}
-                                handleSelectDay={onSelectDay}
-                                selected={false}
+                                handleSelectDay={() => onSelectDay(tp)}
+                                isSelected={tp === selectedDay}
                             >
                                 {getDay(tp, "short")}
                             </PrevTodos>
