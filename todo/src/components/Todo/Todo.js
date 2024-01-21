@@ -3,10 +3,10 @@ import { useState } from "react";
 
 function Todos({ children, timestamp, handleDelete, handleFinish }) {
     const [finish, setFinish] = useState(false);
-    function handleCheck() {
+    function handleCheck(timeStp) {
         setFinish(!finish);
         let param = finish ? "add" : "sub";
-        handleFinish(param);
+        handleFinish(param, timeStp);
     }
 
     function time(tps) {
@@ -55,7 +55,7 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
                                 id="ripple-on"
                                 type="checkbox"
                                 // for="1"
-                                onClick={() => handleCheck()}
+                                onClick={() => handleCheck(timestamp)}
                                 className="before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-pink transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-pink before:opacity-0 before:transition-opacity checked:border-pink checked:bg-pink checked:before:bg-pink hover:before:opacity-10 duration-500 "
                             />
                             <span className="absolute text-white transition-opacity opacity-0 pointer-events-none top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 peer-checked:opacity-100">
