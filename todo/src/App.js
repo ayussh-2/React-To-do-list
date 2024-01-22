@@ -31,6 +31,7 @@ function App() {
             const newTodo = { [timeStamp]: task };
             setArr((prevArr) => [...prevArr, newTodo]);
             setTotalItems(totalItems + 1);
+            setRenderAgain(renderAgain);
             document.getElementById("todo").value = "";
         } else {
             alert("Please enter something!");
@@ -61,7 +62,6 @@ function App() {
 
     function navBtns(type) {
         setBtn(type);
-        // activeBtn(type);
     }
 
     function getDay(tp, type) {
@@ -133,6 +133,7 @@ function App() {
     const [renderAgain, setRenderAgain] = useState(() => returnTodos(finalArr));
     useEffect(() => {
         if (btn === "clr") {
+            setBtn("");
             deleteCompleted();
         } else if (btn === "act") {
             finalArr = findUniqueElements(arr, finishArr);
@@ -152,26 +153,6 @@ function App() {
         setArr(finalArr);
         setFinishArr([]);
     }
-
-    // function activeBtn(btnType) {
-    //     let unfinshedArr = findUniqueElements(arr, finishArr);
-    //     if (btnType === "clr") {
-    //         setArr(unfinshedArr, () => {
-    //             setFinishArr([]);
-    //             finalArr = arr;
-    //             setRenderAgain(() => returnTodos(finalArr));
-    //         });
-    //     } else if (btnType === "act") {
-    //         // finalArr = unfinshedArr;
-    //     } else if (btnType === "com") {
-    //         // finalArr = finishArr;
-    //     } else {
-    //         // finalArr = arr;
-    //     }
-    //     // console.log(arr);
-    //     // console.log(finalArr);
-    //     // setRenderAgain(() => returnTodos(finalArr));
-    // }
 
     function returnTodos(arr) {
         return (
