@@ -5,7 +5,9 @@ import BottomNav from "./components/Todo/BottomNav";
 import Todos from "./components/Todo/Todo";
 import PrevTodos from "./components/List/PrevTodos";
 import Btn from "./components/elements/Btn";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Slide } from "react-toastify";
 function App() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -34,7 +36,8 @@ function App() {
             setRenderAgain(renderAgain);
             document.getElementById("todo").value = "";
         } else {
-            alert("Please enter something!");
+            // alert("Please enter something!");
+            toast("Enter todos 🥲");
         }
     }
 
@@ -140,7 +143,6 @@ function App() {
         } else if (btn === "com") {
             finalArr = finishArr;
         } else {
-            console.log("all");
             finalArr = arr;
         }
 
@@ -177,32 +179,45 @@ function App() {
         );
     }
 
-    const [isDark, setIsDark] = useState(true);
-    function activateDarkMode() {
-        setIsDark(!isDark);
-        // document.body.classList.remove("dark");
-        // document.body.classList.add("light");
-        if (isDark) {
-            console.log("dark");
+    const [isDark, setIsDark] = useState("dark");
+
+    const handleTheme = () => {
+        setIsDark(isDark === "dark" ? "light" : "dark");
+    };
+
+    useEffect(() => {
+        if (isDark === "dark") {
+            document.documentElement.classList.add("dark");
         } else {
-            console.log("light");
+            document.documentElement.classList.remove("dark");
         }
-    }
+    }, [isDark]);
     return (
-        <div className="md:container px-2 md:px-40 py-10">
+        <div className="md:container px-5 dark:bg-darkBg dark:text-darkTxt md:px-40 py-10">
+            <ToastContainer
+                position="top-center"
+                autoClose={2000}
+                hideProgressBar={false}
+                closeOnClick
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme={isDark}
+                transition={Slide}
+            />
             <div className="text-center mb-10">
                 <h1 className="text-9xl text-pink font-title">Todos</h1>
             </div>
 
-            <div className="flex md:gap-4 gap-2">
+            <div className="md:flex md:gap-4 gap-2">
                 <div
                     id="sideBar"
-                    className="w-1/4 mt-5 bg-white rounded-md md:p-10 p-2"
+                    className="md:w-1/4 mt-5 bg-white rounded-md md:p-10 p-2 dark:bg-darkCard"
                 >
                     <div className="text-pink font-date md:text-3xl text-xl">
                         Previously
                     </div>
-                    <div className="px-2 flex flex-col-reverse gap-3 mt-5">
+                    <div className="px-2 flex md:flex-col-reverse gap-3 mt-5 overflow-x-scroll sbar">
                         {prevTodosTp.map((tp) => (
                             <PrevTodos
                                 key={tp}
@@ -215,24 +230,31 @@ function App() {
                         ))}
                     </div>
                 </div>
-                <div id="main" className="w-3/4">
-                    <div className="md:p-10 p-3 bg-white rounded-md md:my-5 mb-2 mt-5 flex justify-between items-center font-date md:text-xl text-sm">
+                <div
+                    id="main"
+                    className="md:w-3/4 md:p-10 p-3 dark:bg-darkCard bg-white rounded-md md:my-5 mb-2 mt-5 font-date md:text-xl text-sm"
+                >
+                    <div className="flex justify-between items-center m-5">
                         <div>{getDay(null, "long")}</div>
                         <div>
                             <i
-                                onClick={() => activateDarkMode()}
+                                onClick={handleTheme}
                                 class={`fa-regular ${
-                                    isDark ? "fa-sun" : "fa-moon"
+                                    isDark === "dark" ? "fa-sun" : "fa-moon"
                                 } scale-125 hover:scale-150 active:scale-150 text-pink duration-500 active:rotate-45 cursor-pointer`}
                             ></i>
                         </div>
                     </div>
 
-                    <div className="card flex flex-col md:gap-10 gap-5 bg-white rounded-md md:p-10 font-main p-5">
+                    <div className="md:p-10 mt-10">
                         <InputTodo handleTodos={updateTodos} />
-
-                        {renderAgain}
-
+                        <div
+                            className={`md:p-5 my-10 ${
+                                finalArr.length !== 0 ? "h-contM md:h-cont" : ""
+                            } overflow-y-scroll sbar`}
+                        >
+                            {renderAgain}
+                        </div>
                         <BottomNav itemsLeft={totalItems}>
                             <Btn
                                 handleBtn={() => navBtns("all")}

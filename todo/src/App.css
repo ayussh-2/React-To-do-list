@@ -5,4 +5,14 @@ body {
     background-color: #f4f4f5;
     padding: 0;
     margin: 0;
+    scrollbar-width: none;
+}
+body::-webkit-scrollbar {
+    width: 0;
+}
+.sbar {
+    scrollbar-width: none;
+}
+.sbar::-webkit-scrollbar {
+    width: 0;
 }

@@ -23,7 +23,7 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
 
     return (
         <div
-            className={`bg-white grid md:gap-3 md:p-5 p-2 items-center justify-between rounded-md duration-300 border-2 md:my-3 my-1 ${
+            className={`bg-white dark:bg-darkSubCard dark:border-none grid md:gap-3 md:p-5 p-2 items-center justify-between rounded-md duration-300 border-2 md:my-3 my-1 ${
                 finish ? "text-pink line-through border-pink" : ""
             }`}
         >
@@ -38,7 +38,7 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
             <div className="flex items-center justify-between ">
                 <div id="del">
                     <button
-                        className="md:px-3 py-1 px-2 bg-pink text-white rounded-md active:scale-95 duration-150 font-normal text-sm md:text-base"
+                        className="md:px-3 py-1 px-2 dark:bg-darkLightBlack dark:text-pink bg-pink text-white rounded-md active:scale-95 duration-150 font-normal text-sm md:text-base"
                         onClick={() => handleDelete(timestamp)}
                     >
                         Delete

@@ -7,6 +7,6 @@
         @apply px-3 py-1 border-2 border-pink rounded-md duration-500  active:scale-95;
     }
     .activeDate {
-        @apply bg-pink text-white;
+        @apply bg-pink text-white dark:text-pink font-semibold;
     }
 }
