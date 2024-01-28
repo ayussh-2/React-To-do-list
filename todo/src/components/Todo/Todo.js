@@ -1,11 +1,8 @@
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
-function Todos({ children, timestamp, handleDelete, handleFinish }) {
-    const [finish, setFinish] = useState(false);
+function Todos({ children, timestamp, handleDelete, handleFinish, completed }) {
     function handleCheck(timeStp) {
-        setFinish(!finish);
-        let param = finish ? "add" : "sub";
+        let param = completed ? "add" : "sub";
         handleFinish(param, timeStp);
     }
 
@@ -24,7 +21,7 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
     return (
         <div
             className={`bg-white dark:bg-darkSubCard dark:border-none grid md:gap-3 md:p-5 p-2 items-center justify-between rounded-md duration-300 border-2 md:my-3 my-1 ${
-                finish ? "text-pink line-through border-pink" : ""
+                completed ? "text-pink line-through border-pink" : ""
             }`}
         >
             <div id="title">
@@ -54,7 +51,7 @@ function Todos({ children, timestamp, handleDelete, handleFinish }) {
                             <input
                                 id="ripple-on"
                                 type="checkbox"
-                                // for="1"
+                                checked={completed}
                                 onClick={() => handleCheck(timestamp)}
                                 className="before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-pink transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-pink before:opacity-0 before:transition-opacity checked:border-pink checked:bg-pink checked:before:bg-pink hover:before:opacity-10 duration-500 "
                             />

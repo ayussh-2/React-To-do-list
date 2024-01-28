@@ -132,6 +132,12 @@ function App() {
         return uniqueInArray1.concat(uniqueInArray2);
     }
 
+    let jsonObject = {};
+    useEffect(() => {
+        jsonObject["active"] = findUniqueElements(arr, finishArr);
+        jsonObject["finish"] = finishArr;
+    }, [arr, finishArr]);
+
     let finalArr = arr;
     const [renderAgain, setRenderAgain] = useState(() => returnTodos(finalArr));
     useEffect(() => {
@@ -145,7 +151,6 @@ function App() {
         } else {
             finalArr = arr;
         }
-
         const newRenderAgain = returnTodos(finalArr);
         setRenderAgain(newRenderAgain);
     }, [arr, finishArr, btn]);
@@ -157,6 +162,10 @@ function App() {
     }
 
     function returnTodos(arr) {
+        function findTp(timestamp) {
+            return finishArr.some((item) => Object.keys(item)[0] === timestamp);
+        }
+
         return (
             <div className="flex flex-col-reverse">
                 {arr.length > 0 ? (
@@ -166,6 +175,7 @@ function App() {
                             handleDelete={DeleteTodo}
                             timestamp={Object.keys(item)[0]}
                             handleFinish={updateNoTodos}
+                            completed={findTp(Object.keys(item)[0])}
                         >
                             {Object.values(item)[0]}
                         </Todos>
@@ -180,11 +190,9 @@ function App() {
     }
 
     const [isDark, setIsDark] = useState("dark");
-
     const handleTheme = () => {
         setIsDark(isDark === "dark" ? "light" : "dark");
     };
-
     useEffect(() => {
         if (isDark === "dark") {
             document.documentElement.classList.add("dark");
@@ -192,6 +200,7 @@ function App() {
             document.documentElement.classList.remove("dark");
         }
     }, [isDark]);
+
     return (
         <div className="md:container px-5 dark:bg-darkBg dark:text-darkTxt md:px-40 py-10">
             <ToastContainer
