@@ -28,7 +28,7 @@ function Login({ handleLogin }) {
                     toast("Incorrect Email or Password!");
                 } else {
                     toast("Some error has occoured");
-                    console.error(err);
+                    console.error(err.code);
                 }
             }
         } else {
@@ -64,7 +64,12 @@ function Login({ handleLogin }) {
                 setIsLoading(false);
                 if (err.code === "auth/email-already-in-use") {
                     toast("Oops duplicate mail !");
+                } else if (err.code === "auth/invalid-email") {
+                    toast("Invalid Email");
+                } else if (err.code === "auth/weak-password") {
+                    toast(err.message);
                 } else {
+                    toast("Some error has occoured!");
                     console.error(err);
                 }
             }
