@@ -16,6 +16,7 @@ module.exports = {
             height: {
                 cont: "40rem",
                 contM: "20rem",
+                hScreen: "100vh",
             },
         },
         fontFamily: {

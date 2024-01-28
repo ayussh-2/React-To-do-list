@@ -5,6 +5,7 @@ import BottomNav from "./components/Todo/BottomNav";
 import Todos from "./components/Todo/Todo";
 import PrevTodos from "./components/List/PrevTodos";
 import Btn from "./components/elements/Btn";
+import Login from "./components/login/Login";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Slide } from "react-toastify";
@@ -17,7 +18,12 @@ function App() {
     const [finishArr, setFinishArr] = useState([]);
     const [totalItems, setTotalItems] = useState(arr.length);
     const [selectedDay, setSelectedDay] = useState(tpToday);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [btn, setBtn] = useState("all");
+
+    function handleLogin() {
+        setIsLoggedIn(!isLoggedIn);
+    }
 
     const prevTodosTp = [
         1741996800000, 1730505600000, 1720396800000, 1727568000000,
@@ -214,85 +220,95 @@ function App() {
                 theme={isDark}
                 transition={Slide}
             />
-            <div className="text-center mb-10">
-                <h1 className="text-9xl text-pink font-title">Todos</h1>
-            </div>
 
-            <div className="md:flex md:gap-4 gap-2">
-                <div
-                    id="sideBar"
-                    className="md:w-1/4 mt-5 bg-white rounded-md md:p-10 p-2 dark:bg-darkCard"
-                >
-                    <div className="text-pink font-date md:text-3xl text-xl">
-                        Previously
+            {isLoggedIn ? (
+                <>
+                    <div className="text-center mb-10">
+                        <h1 className="text-9xl text-pink font-title">Todos</h1>
                     </div>
-                    <div className="px-2 flex md:flex-col-reverse gap-3 mt-5 overflow-x-scroll sbar">
-                        {prevTodosTp.map((tp) => (
-                            <PrevTodos
-                                key={tp}
-                                id={tp}
-                                handleSelectDay={() => onSelectDay(tp)}
-                                isSelected={tp === selectedDay}
-                            >
-                                {getDay(tp, "short")}
-                            </PrevTodos>
-                        ))}
-                    </div>
-                </div>
-                <div
-                    id="main"
-                    className="md:w-3/4 md:p-10 p-3 dark:bg-darkCard bg-white rounded-md md:my-5 mb-2 mt-5 font-date md:text-xl text-sm"
-                >
-                    <div className="flex justify-between items-center m-5">
-                        <div>{getDay(null, "long")}</div>
-                        <div>
-                            <i
-                                onClick={handleTheme}
-                                class={`fa-regular ${
-                                    isDark === "dark" ? "fa-sun" : "fa-moon"
-                                } scale-125 hover:scale-150 active:scale-150 text-pink duration-500 active:rotate-45 cursor-pointer`}
-                            ></i>
-                        </div>
-                    </div>
-
-                    <div className="md:p-10 mt-10">
-                        <InputTodo handleTodos={updateTodos} />
+                    <div className="md:flex md:gap-4 gap-2">
                         <div
-                            className={`md:p-5 my-10 ${
-                                finalArr.length !== 0 ? "h-contM md:h-cont" : ""
-                            } overflow-y-scroll sbar`}
+                            id="sideBar"
+                            className="md:w-1/4 mt-5 bg-white rounded-md md:p-10 p-2 dark:bg-darkCard"
                         >
-                            {renderAgain}
+                            <div className="text-pink font-date md:text-3xl text-xl">
+                                Previously
+                            </div>
+                            <div className="px-2 flex md:flex-col-reverse gap-3 mt-5 overflow-x-scroll sbar">
+                                {prevTodosTp.map((tp) => (
+                                    <PrevTodos
+                                        key={tp}
+                                        id={tp}
+                                        handleSelectDay={() => onSelectDay(tp)}
+                                        isSelected={tp === selectedDay}
+                                    >
+                                        {getDay(tp, "short")}
+                                    </PrevTodos>
+                                ))}
+                            </div>
                         </div>
-                        <BottomNav itemsLeft={totalItems}>
-                            <Btn
-                                handleBtn={() => navBtns("all")}
-                                active={btn === "all"}
-                            >
-                                All
-                            </Btn>
-                            <Btn
-                                handleBtn={() => navBtns("act")}
-                                active={btn === "act"}
-                            >
-                                Active
-                            </Btn>
-                            <Btn
-                                handleBtn={() => navBtns("com")}
-                                active={btn === "com"}
-                            >
-                                Completed
-                            </Btn>
-                            <Btn
-                                handleBtn={() => navBtns("clr")}
-                                active={false}
-                            >
-                                Clear Completed
-                            </Btn>
-                        </BottomNav>
+                        <div
+                            id="main"
+                            className="md:w-3/4 md:p-10 p-3 dark:bg-darkCard bg-white rounded-md md:my-5 mb-2 mt-5 font-date md:text-xl text-sm"
+                        >
+                            <div className="flex justify-between items-center m-5">
+                                <div>{getDay(null, "long")}</div>
+                                <div>
+                                    <i
+                                        onClick={handleTheme}
+                                        class={`fa-regular ${
+                                            isDark === "dark"
+                                                ? "fa-sun"
+                                                : "fa-moon"
+                                        } scale-125 hover:scale-150 active:scale-150 text-pink duration-500 active:rotate-45 cursor-pointer`}
+                                    ></i>
+                                </div>
+                            </div>
+
+                            <div className="md:p-10 mt-10">
+                                <InputTodo handleTodos={updateTodos} />
+                                <div
+                                    className={`md:p-5 my-10 ${
+                                        finalArr.length !== 0
+                                            ? "h-contM md:h-cont"
+                                            : ""
+                                    } overflow-y-scroll sbar`}
+                                >
+                                    {renderAgain}
+                                </div>
+                                <BottomNav itemsLeft={totalItems}>
+                                    <Btn
+                                        handleBtn={() => navBtns("all")}
+                                        active={btn === "all"}
+                                    >
+                                        All
+                                    </Btn>
+                                    <Btn
+                                        handleBtn={() => navBtns("act")}
+                                        active={btn === "act"}
+                                    >
+                                        Active
+                                    </Btn>
+                                    <Btn
+                                        handleBtn={() => navBtns("com")}
+                                        active={btn === "com"}
+                                    >
+                                        Completed
+                                    </Btn>
+                                    <Btn
+                                        handleBtn={() => navBtns("clr")}
+                                        active={false}
+                                    >
+                                        Clear Completed
+                                    </Btn>
+                                </BottomNav>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </>
+            ) : (
+                <Login handleLogin={handleLogin} />
+            )}
         </div>
     );
 }
