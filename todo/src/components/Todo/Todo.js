@@ -20,7 +20,7 @@ function Todos({ children, timestamp, handleDelete, handleFinish, completed }) {
 
     return (
         <div
-            className={`bg-white dark:bg-darkSubCard dark:border-none grid md:gap-3 md:p-5 p-2 items-center justify-between rounded-md duration-300 border-2 md:my-3 my-1 ${
+            className={`bg-white dark:bg-darkSubCard dark:border-none grid md:gap-3 md:p-5 p-2 items-center justify-between rounded-md duration-300 border-2 md:my-3 my-1 slideDown ${
                 completed ? "text-pink line-through border-pink" : ""
             }`}
         >

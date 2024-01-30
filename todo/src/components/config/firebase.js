@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+
 const firebaseConfig = {
     apiKey: "AIzaSyB6U5eqLR2wizyzTUF6M-lnJRQbiNLcmAQ",
     authDomain: "react-todo-4f20b.firebaseapp.com",
@@ -13,3 +15,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleAuth = new GoogleAuthProvider();
+export const db = getFirestore(app);

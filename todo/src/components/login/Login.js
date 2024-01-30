@@ -5,7 +5,7 @@ import {
     signInWithEmailAndPassword,
     signInWithPopup,
 } from "firebase/auth";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HashLoader from "react-spinners/HashLoader";
 
@@ -60,6 +60,7 @@ function Login({ handleLogin }) {
                 await createUserWithEmailAndPassword(auth, mail, password);
                 setIsLoading(false);
                 toast("Account Created!");
+                setNewUser(false);
             } catch (err) {
                 setIsLoading(false);
                 if (err.code === "auth/email-already-in-use") {
@@ -89,7 +90,7 @@ function Login({ handleLogin }) {
             </div>
 
             <div
-                className={`sm:w-96 md:w-1/2 lg:w-1/3 xl:w-1/4 gap-10 flex flex-col text-center duration-500  ${
+                className={`sm:w-96 md:w-1/2 lg:w-1/3 xl:w-96 gap-10 flex flex-col text-center duration-500  ${
                     isLoading ? "filter blur-md " : ""
                 }`}
             >
@@ -100,7 +101,7 @@ function Login({ handleLogin }) {
                             <i className="fas fa-at" aria-hidden="true"></i>
                         </div>
                         <input
-                            className="font-sans p-4 rounded-md w-full bg-darkSubCard text-white outline-none"
+                            className="font-thin p-4 rounded-md w-full bg-darkSubCard text-white outline-none"
                             placeholder="Email"
                             type="email"
                             onChange={(e) => setMail(e.target.value)}
@@ -117,7 +118,7 @@ function Login({ handleLogin }) {
                             ></i>
                         </div>
                         <input
-                            className="font-sans p-4 rounded-md w-full bg-darkSubCard text-white outline-none"
+                            className="font-thin p-4 rounded-md w-full bg-darkSubCard text-white outline-none"
                             placeholder="Password"
                             type={viewPass ? "text" : "password"}
                             onChange={(e) => setPassword(e.target.value)}
