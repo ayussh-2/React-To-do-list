@@ -2,14 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import { db, auth } from "./components/config/firebase";
 import { signOut } from "firebase/auth";
-import {
-    addDoc,
-    collection,
-    query,
-    where,
-    getDoc,
-    getDocs,
-} from "firebase/firestore";
+import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
 import InputTodo from "./components/Todo/Input";
 import BottomNav from "./components/Todo/BottomNav";
 import Todos from "./components/Todo/Todo";
@@ -40,6 +33,7 @@ function App() {
             await signOut(auth);
             setLoading(false);
             toast("Logout Successfull");
+            localStorage.setItem("user", "");
             setIsLoggedIn(false);
         } catch (err) {
             console.error(err);
@@ -89,29 +83,6 @@ function App() {
         fetchData(auth?.currentUser?.uid, tp);
     }
 
-    function findUniqueElements(arr1, arr2) {
-        const uniqueInArray1 = arr1.filter(
-            (item1) =>
-                !arr2.some(
-                    (item2) =>
-                        Object.keys(item1)[0] === Object.keys(item2)[0] &&
-                        item1[Object.keys(item1)[0]] ===
-                            item2[Object.keys(item2)[0]]
-                )
-        );
-        const uniqueInArray2 = arr2.filter(
-            (item2) =>
-                !arr1.some(
-                    (item1) =>
-                        Object.keys(item1)[0] === Object.keys(item2)[0] &&
-                        item1[Object.keys(item1)[0]] ===
-                            item2[Object.keys(item2)[0]]
-                )
-        );
-
-        return uniqueInArray1.concat(uniqueInArray2);
-    }
-
     function handleLogin() {
         setIsLoggedIn(!isLoggedIn);
     }
@@ -127,48 +98,67 @@ function App() {
         let task = document.getElementById("todo").value;
         if (task !== "") {
             let timeStamp = new Date().getTime();
-            const newTodo = { [timeStamp]: task };
+            const newTodo = { todo: task, completed: false, date: timeStamp };
             setArr((prevArr) => [...prevArr, newTodo]);
             setTotalItems(totalItems + 1);
             setRenderAgain(renderAgain);
             document.getElementById("todo").value = "";
         } else {
-            // alert("Please enter something!");
             toast("Enter todos 🥲");
         }
     }
 
+    function completeTodo(timestamp) {
+        const updatedArr = arr.map((item) => {
+            if (item.date === timestamp) {
+                return {
+                    todo: item.todo,
+                    completed: !item.completed,
+                    date: timestamp,
+                };
+            }
+            return item;
+        });
+        console.log(updatedArr);
+        setArr(updatedArr);
+    }
+
     function DeleteTodo(tp) {
-        setArr((prevArr) =>
-            prevArr.filter((item) => !Object.keys(item).includes(tp.toString()))
-        );
+        setArr((prevArr) => prevArr.filter((item) => item.date !== tp));
         setTotalItems(totalItems - 1);
     }
 
     function updateNoTodos(param, tp) {
         if (param === "sub") {
             // setTotalItems(totalItems - 1);
-            const task = finalArr.find((obj) => tp in obj);
-            setFinishArr((prevArr) => [...prevArr, task]);
+            console.log(finalArr);
+            console.log(arr);
+            // const task = finalArr.find((obj) => tp in obj);
+            // setFinishArr((prevArr) => [...prevArr, task]);
         } else {
             // setTotalItems(totalItems + 1);
-            setFinishArr((prevArr) =>
-                prevArr.filter(
-                    (item) => !Object.keys(item).includes(tp.toString())
-                )
-            );
+            // setFinishArr((prevArr) =>
+            //     prevArr.filter(
+            //         (item) => !Object.keys(item).includes(tp.toString())
+            //     )
+            // );
         }
+        completeTodo(tp);
     }
 
     function deleteCompleted() {
-        finalArr = findUniqueElements(arr, finishArr);
+        finalArr = [];
+        arr.forEach((element) => {
+            if (element.completed === false) {
+                finalArr.push(element);
+            }
+        });
         setArr(finalArr);
-        setFinishArr([]);
     }
 
     function returnTodos(arr) {
         function findTp(timestamp) {
-            return finishArr.some((item) => Object.keys(item)[0] === timestamp);
+            return finishArr.some((item) => item.date === timestamp);
         }
 
         return (
@@ -176,13 +166,14 @@ function App() {
                 {arr.length > 0 ? (
                     arr.map((item) => (
                         <Todos
-                            key={Object.keys(item)[0]}
+                            key={item.date}
                             handleDelete={DeleteTodo}
-                            timestamp={Object.keys(item)[0]}
+                            timestamp={item.date}
                             handleFinish={updateNoTodos}
-                            completed={findTp(Object.keys(item)[0])}
+                            handleComplete={completeTodo}
+                            completed={findTp(item.date) || item.completed}
                         >
-                            {Object.values(item)[0]}
+                            {item.todo}
                         </Todos>
                     ))
                 ) : (
@@ -211,16 +202,15 @@ function App() {
     }, [isDark]);
 
     let jsonObject = {};
-
     useEffect(() => {
-        jsonObject["active"] = findUniqueElements(arr, finishArr);
-        jsonObject["finish"] = finishArr;
+        jsonObject = arr;
     }, [arr, finishArr, jsonObject]);
 
     function handleSaveTodos() {
         uploadTodos();
-        console.log(jsonObject);
     }
+
+    // update on btn click
     let finalArr = arr;
     const [renderAgain, setRenderAgain] = useState(() => returnTodos(finalArr));
     useEffect(() => {
@@ -228,9 +218,19 @@ function App() {
             setBtn("");
             deleteCompleted();
         } else if (btn === "act") {
-            finalArr = findUniqueElements(arr, finishArr);
+            finalArr = [];
+            arr.forEach((element) => {
+                if (element.completed === false) {
+                    finalArr.push(element);
+                }
+            });
         } else if (btn === "com") {
-            finalArr = finishArr;
+            finalArr = [];
+            arr.forEach((element) => {
+                if (element.completed === true) {
+                    finalArr.push(element);
+                }
+            });
         } else {
             finalArr = arr;
         }
@@ -240,7 +240,7 @@ function App() {
 
     const referance = collection(db, "todos");
     const uploadTodos = async () => {
-        if (jsonObject.active.length !== 0 || jsonObject.finish.length !== 0) {
+        if (jsonObject.length !== 0) {
             setLoading(true);
             if (auth.currentUser && auth.currentUser.uid !== null) {
                 try {
@@ -266,7 +266,7 @@ function App() {
         }
     };
 
-    const fetchData = async (userId, desiredDate) => {
+    async function fetchData(userId, desiredDate) {
         setLoading(true);
         try {
             const q = query(
@@ -284,17 +284,30 @@ function App() {
             });
             setLoading(false);
             console.log(data);
+            if (data.length !== 0) {
+                setRenderAgain(returnTodos(data[0]["todos"]));
+                finalArr = data[0]["todos"];
+            }
         } catch (err) {
             console.error(err);
             setLoading(false);
         }
-    };
+    }
 
     useEffect(() => {
-        fetchData(auth?.currentUser?.uid, tpToday);
-    }, [isLoggedIn]);
-
-    function hamdleDateChange(tp) {
+        try {
+            const userid = localStorage.getItem("user");
+            if (userid !== null) {
+                setIsLoggedIn(true);
+                fetchData(userid, tpToday);
+            } else {
+                setIsLoggedIn(false);
+            }
+        } catch (error) {
+            console.error("Error checking login status:", error);
+        }
+    }, []);
+    function handleDateChange(tp) {
         fetchData(auth?.currentUser?.uid, tp);
     }
     return (

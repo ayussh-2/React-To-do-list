@@ -30,6 +30,8 @@ function Login({ handleLogin }) {
                     toast("Some error has occoured");
                     console.error(err.code);
                 }
+            } finally {
+                localStorage.setItem("user", auth?.currentUser?.uid);
             }
         } else {
             toast("Fill up the details");
@@ -46,6 +48,8 @@ function Login({ handleLogin }) {
             console.error(err);
             setIsLoading(false);
             toast("Some error has occoured!");
+        } finally {
+            localStorage.setItem("user", auth?.currentUser?.uid);
         }
     };
 
