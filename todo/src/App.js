@@ -286,7 +286,7 @@ function App() {
             console.log(data);
             if (data.length !== 0) {
                 setRenderAgain(returnTodos(data[0]["todos"]));
-                finalArr = data[0]["todos"];
+                setArr(data[0]["todos"]);
             }
         } catch (err) {
             console.error(err);
