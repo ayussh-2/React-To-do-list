@@ -56,15 +56,28 @@ function App() {
             toast("Logout Successfull");
             localStorage.setItem("user", "");
             setIsLoggedIn(false);
-
             setArr([]);
-            // setPrevTodosTp([]);
+            setPrevTodosTp([]);
+            setBtn("all");
         } catch (err) {
             console.error(err);
         }
 
         console.log(isLoggedIn);
     };
+
+    useEffect(
+        function () {
+            let count = 0;
+            arr.forEach((element) => {
+                if (!element["completed"]) {
+                    count++;
+                }
+            });
+            setTotalItems(count);
+        },
+        [arr]
+    );
 
     let user = localStorage.getItem("user");
 
@@ -121,7 +134,6 @@ function App() {
             let timeStamp = new Date().getTime();
             const newTodo = { todo: task, completed: false, date: timeStamp };
             setArr((prevArr) => [...prevArr, newTodo]);
-            setTotalItems(totalItems + 1);
             setRenderAgain(renderAgain);
             document.getElementById("todo").value = "";
         } else {
@@ -140,21 +152,12 @@ function App() {
             }
             return item;
         });
-        console.log(updatedArr);
+        // console.log(updatedArr);
         setArr(updatedArr);
     }
 
     function DeleteTodo(tp) {
         setArr((prevArr) => prevArr.filter((item) => item.date !== tp));
-        setTotalItems(totalItems - 1);
-    }
-
-    function updateNoTodos(param, tp) {
-        if (param === "sub") {
-            // setTotalItems(totalItems - 1);
-        } else {
-        }
-        completeTodo(tp);
     }
 
     function deleteCompleted() {
@@ -176,7 +179,7 @@ function App() {
                             key={item.date}
                             handleDelete={DeleteTodo}
                             timestamp={item.date}
-                            handleFinish={updateNoTodos}
+                            handleFinish={completeTodo}
                             handleComplete={completeTodo}
                             completed={item.completed}
                         >
@@ -201,7 +204,7 @@ function App() {
     }, [arr, jsonObject]);
 
     function handleSaveTodos() {
-        uploadTodos();
+        uploadTodos(selectedDay);
     }
 
     // update on btn click
@@ -218,7 +221,7 @@ function App() {
                     finalArr.push(element);
                 }
             });
-            console.log(finalArr);
+            // console.log(finalArr);
         } else if (btn === "com") {
             finalArr = [];
             arr.forEach((element) => {
@@ -235,7 +238,7 @@ function App() {
 
     // upload and fetch!
     const referance = collection(db, "todos");
-    const uploadTodos = async () => {
+    const uploadTodos = async (day) => {
         if (jsonObject.length !== 0) {
             setLoading(true);
             const currentUserID = user;
@@ -245,7 +248,7 @@ function App() {
                     query(
                         referance,
                         where("createdBy", "==", currentUserID),
-                        where("date", "==", tpToday)
+                        where("date", "==", day)
                     )
                 );
 
@@ -287,7 +290,7 @@ function App() {
                     // No existing documents, add a new one
                     await addDoc(referance, {
                         createdBy: currentUserID,
-                        date: tpToday,
+                        date: day,
                         todos: jsonObject,
                     });
 
@@ -412,7 +415,7 @@ function App() {
                                     Previously
                                 </div>
                                 <div className="px-2 flex md:flex-col-reverse gap-3 mt-5 overflow-x-scroll sbar">
-                                    {prevTodosTp !== null &&
+                                    {prevTodosTp !== null ? (
                                         prevTodosTp.map((tp, index) => (
                                             <PrevTodos
                                                 key={index}
@@ -424,7 +427,12 @@ function App() {
                                             >
                                                 {getDay(tp, "short")}
                                             </PrevTodos>
-                                        ))}
+                                        ))
+                                    ) : (
+                                        <p className="italic text-center mt-5">
+                                            Start adding today!
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                             <div
@@ -432,7 +440,7 @@ function App() {
                                 className="md:w-3/4 md:p-10 p-3 dark:bg-darkCard bg-white rounded-md md:my-5 mb-2 mt-5 font-date md:text-xl text-sm fadeIn"
                             >
                                 <div className="flex justify-between items-center m-5">
-                                    <div>{getDay(null, "long")}</div>
+                                    <div>{getDay(selectedDay, "long")}</div>
                                     <div className="flex gap-5">
                                         <i
                                             onClick={handleTheme}
@@ -443,7 +451,7 @@ function App() {
                                             } scale-125 hover:scale-150 active:scale-150 text-pink duration-500 active:rotate-45 cursor-pointer`}
                                         ></i>
                                         <i
-                                            class="fa-solid fa-right-from-bracket text-pink hover:scale-125 active:scale-150 duration-200"
+                                            class="fa-solid fa-right-from-bracket text-pink hover:scale-125 cursor-pointer active:scale-150 duration-200"
                                             onClick={logout}
                                         ></i>
                                     </div>

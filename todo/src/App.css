@@ -104,3 +104,21 @@ body::-webkit-scrollbar {
 #footer:hover i {
     animation: pulse 1s infinite;
 }
+.cool-link {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.cool-link::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 2px;
+    background: #ebc3c4;
+    transition: width 0.3s;
+}
+
+.cool-link:hover::after {
+    width: 100%;
+    /* transition: width .3s; */
+}

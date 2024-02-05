@@ -3,9 +3,6 @@
 @tailwind utilities;
 
 @layer components {
-    .activeBtn {
-        @apply border-b-2 border-pink active:scale-95;
-    }
     .activeDate {
         @apply bg-pink text-white dark:text-pink font-semibold;
     }

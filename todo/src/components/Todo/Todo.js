@@ -1,9 +1,6 @@
-import { useState } from "react";
-
 function Todos({ children, timestamp, handleDelete, handleFinish, completed }) {
     function handleCheck(timeStp) {
-        let param = completed ? "add" : "sub";
-        handleFinish(param, timeStp);
+        handleFinish(timeStp);
     }
 
     function time(tps) {

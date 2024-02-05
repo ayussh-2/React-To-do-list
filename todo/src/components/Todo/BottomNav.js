@@ -11,7 +11,7 @@ function BottomNav({ itemsLeft, children }) {
                     </>
                 )}
             </div>
-            <div className="md:flex grid grid-cols-2 grid-rows-2 md:gap-10 gap-2">
+            <div className="md:flex grid grid-cols-2 grid-rows-2 md:gap-10 gap-4">
                 {children}
             </div>
         </div>
