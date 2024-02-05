@@ -1,10 +1,4 @@
-function PrevTodos({
-    children,
-    id,
-    isSelected,
-    handleSelectDay,
-    selectedParam,
-}) {
+function PrevTodos({ children, id, isSelected, handleSelectDay }) {
     return (
         <div
             className={`${

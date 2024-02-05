@@ -2,7 +2,15 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import { db, auth } from "./components/config/firebase";
 import { signOut } from "firebase/auth";
-import { addDoc, collection, query, where, getDocs } from "firebase/firestore";
+import {
+    addDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    getDoc,
+    updateDoc,
+} from "firebase/firestore";
 import InputTodo from "./components/Todo/Input";
 import BottomNav from "./components/Todo/BottomNav";
 import Todos from "./components/Todo/Todo";
@@ -13,19 +21,32 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Slide } from "react-toastify";
 import HashLoader from "react-spinners/HashLoader";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tpToday = today.getTime();
-
+    // const tpToday = 1707596477000;
     const [arr, setArr] = useState([]);
-    const [finishArr, setFinishArr] = useState([]);
     const [totalItems, setTotalItems] = useState(arr.length);
     const [selectedDay, setSelectedDay] = useState(tpToday);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [btn, setBtn] = useState("all");
     const [loading, setLoading] = useState(false);
+    const [prevTodosTp, setPrevTodosTp] = useState(null);
+    const [isDark, setIsDark] = useState("dark");
+    const handleTheme = () => {
+        setIsDark(isDark === "dark" ? "light" : "dark");
+    };
+    useEffect(() => {
+        if (isDark === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+    }, [isDark]);
 
     const logout = async () => {
         setLoading(true);
@@ -35,10 +56,17 @@ function App() {
             toast("Logout Successfull");
             localStorage.setItem("user", "");
             setIsLoggedIn(false);
+
+            setArr([]);
+            // setPrevTodosTp([]);
         } catch (err) {
             console.error(err);
         }
+
+        console.log(isLoggedIn);
     };
+
+    let user = localStorage.getItem("user");
 
     function getDay(tp, type) {
         let date = tp !== null ? new Date(tp) : new Date();
@@ -80,19 +108,12 @@ function App() {
 
     function onSelectDay(tp) {
         setSelectedDay(tp);
-        fetchData(auth?.currentUser?.uid, tp);
+        fetchData(user, tp);
     }
 
     function handleLogin() {
         setIsLoggedIn(!isLoggedIn);
     }
-
-    const prevTodosTp = [
-        1741996800000, 1730505600000, 1720396800000, 1727568000000,
-        1733961600000, 1743811200000, 1724198400000, 1748908800000,
-        1729123200000, 1739059200000, 1706483659000, 1706380200000,
-    ];
-    prevTodosTp.push(tpToday);
 
     function updateTodos() {
         let task = document.getElementById("todo").value;
@@ -131,17 +152,7 @@ function App() {
     function updateNoTodos(param, tp) {
         if (param === "sub") {
             // setTotalItems(totalItems - 1);
-            console.log(finalArr);
-            console.log(arr);
-            // const task = finalArr.find((obj) => tp in obj);
-            // setFinishArr((prevArr) => [...prevArr, task]);
         } else {
-            // setTotalItems(totalItems + 1);
-            // setFinishArr((prevArr) =>
-            //     prevArr.filter(
-            //         (item) => !Object.keys(item).includes(tp.toString())
-            //     )
-            // );
         }
         completeTodo(tp);
     }
@@ -157,10 +168,6 @@ function App() {
     }
 
     function returnTodos(arr) {
-        function findTp(timestamp) {
-            return finishArr.some((item) => item.date === timestamp);
-        }
-
         return (
             <div className="flex flex-col-reverse">
                 {arr.length > 0 ? (
@@ -171,7 +178,7 @@ function App() {
                             timestamp={item.date}
                             handleFinish={updateNoTodos}
                             handleComplete={completeTodo}
-                            completed={findTp(item.date) || item.completed}
+                            completed={item.completed}
                         >
                             {item.todo}
                         </Todos>
@@ -188,23 +195,10 @@ function App() {
     function navBtns(type) {
         setBtn(type);
     }
-
-    const [isDark, setIsDark] = useState("dark");
-    const handleTheme = () => {
-        setIsDark(isDark === "dark" ? "light" : "dark");
-    };
-    useEffect(() => {
-        if (isDark === "dark") {
-            document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.remove("dark");
-        }
-    }, [isDark]);
-
     let jsonObject = {};
     useEffect(() => {
         jsonObject = arr;
-    }, [arr, finishArr, jsonObject]);
+    }, [arr, jsonObject]);
 
     function handleSaveTodos() {
         uploadTodos();
@@ -224,6 +218,7 @@ function App() {
                     finalArr.push(element);
                 }
             });
+            console.log(finalArr);
         } else if (btn === "com") {
             finalArr = [];
             arr.forEach((element) => {
@@ -236,30 +231,74 @@ function App() {
         }
         const newRenderAgain = returnTodos(finalArr);
         setRenderAgain(newRenderAgain);
-    }, [arr, finishArr, btn]);
+    }, [arr, btn]);
 
+    // upload and fetch!
     const referance = collection(db, "todos");
     const uploadTodos = async () => {
         if (jsonObject.length !== 0) {
             setLoading(true);
-            if (auth.currentUser && auth.currentUser.uid !== null) {
-                try {
+            const currentUserID = user;
+
+            try {
+                const querySnapshot = await getDocs(
+                    query(
+                        referance,
+                        where("createdBy", "==", currentUserID),
+                        where("date", "==", tpToday)
+                    )
+                );
+
+                if (querySnapshot.size > 0) {
+                    const docRef = querySnapshot.docs[0].ref;
+                    const existingTodos =
+                        (await getDoc(docRef)).data().todos || [];
+
+                    // Update existing todos based on their properties
+                    const updatedTodos = existingTodos.map((existingTodo) => {
+                        const matchingNewTodo = jsonObject.find(
+                            (newTodo) =>
+                                existingTodo.date === newTodo.date &&
+                                existingTodo.todo === newTodo.todo
+                        );
+
+                        return matchingNewTodo
+                            ? { ...existingTodo, ...matchingNewTodo }
+                            : existingTodo;
+                    });
+
+                    // Filter out existing todos from jsonObject
+                    const newTodos = jsonObject.filter(
+                        (newTodo) =>
+                            !existingTodos.some(
+                                (existingTodo) =>
+                                    existingTodo.date === newTodo.date &&
+                                    existingTodo.todo === newTodo.todo
+                            )
+                    );
+
+                    // Concatenate updated existing todos with new todos
+                    const finalTodos = updatedTodos.concat(newTodos);
+
+                    await updateDoc(docRef, { todos: finalTodos });
+
+                    toast("Todos updated!");
+                } else {
+                    // No existing documents, add a new one
                     await addDoc(referance, {
-                        createdBy: auth?.currentUser?.uid,
+                        createdBy: currentUserID,
                         date: tpToday,
                         todos: jsonObject,
                     });
-                    setLoading(false);
+
                     toast("Todos saved!");
-                } catch (err) {
-                    console.error(err);
-                    setLoading(false);
-                    toast("Some error occoured!");
                 }
-            } else {
-                toast("Log in to save your todos!");
+
                 setLoading(false);
-                setIsLoggedIn(false);
+            } catch (err) {
+                console.error(err);
+                setLoading(false);
+                toast("Some error occurred!");
             }
         } else {
             toast("Add some todos!");
@@ -268,58 +307,81 @@ function App() {
 
     async function fetchData(userId, desiredDate) {
         setLoading(true);
-        try {
-            const q = query(
-                collection(db, "todos"),
-                where("createdBy", "==", userId),
-                where("date", "==", desiredDate)
-            );
-            const querySnapshot = await getDocs(q);
-            const data = [];
-            querySnapshot.forEach((doc) => {
-                data.push({
-                    id: doc.id,
-                    ...doc.data(),
+        if (desiredDate != null) {
+            try {
+                const q = query(
+                    collection(db, "todos"),
+                    where("createdBy", "==", userId),
+                    where("date", "==", desiredDate)
+                );
+                const querySnapshot = await getDocs(q);
+                const data = [];
+                querySnapshot.forEach((doc) => {
+                    data.push({
+                        id: doc.id,
+                        ...doc.data(),
+                    });
                 });
-            });
-            setLoading(false);
-            console.log(data);
-            if (data.length !== 0) {
-                setRenderAgain(returnTodos(data[0]["todos"]));
-                setArr(data[0]["todos"]);
+
+                if (data.length !== 0) {
+                    setRenderAgain(returnTodos(data[0]["todos"]));
+                    setArr(data[0]["todos"]);
+                }
+                // console.log(data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
             }
-        } catch (err) {
-            console.error(err);
-            setLoading(false);
+        } else {
+            try {
+                const q = query(
+                    collection(db, "todos"),
+                    where("createdBy", "==", userId)
+                );
+                const querySnapshot = await getDocs(q);
+                const data = [];
+                querySnapshot.forEach((doc) => {
+                    data.push({
+                        id: doc.id,
+                        ...doc.data(),
+                    });
+                });
+                if (data.length !== 0) {
+                    let dates = [];
+                    data.forEach((element) => {
+                        dates.push(element.date);
+                    });
+
+                    setPrevTodosTp(dates);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
         }
     }
-
     useEffect(() => {
         try {
-            const userid = localStorage.getItem("user");
-            if (userid !== null) {
+            if (user !== "") {
                 setIsLoggedIn(true);
-                fetchData(userid, tpToday);
-            } else {
-                setIsLoggedIn(false);
+                fetchData(user, tpToday);
+                // fetchDates();
+                fetchData(user, null);
             }
         } catch (error) {
-            console.error("Error checking login status:", error);
+            console.error(error);
         }
-    }, []);
-    function handleDateChange(tp) {
-        fetchData(auth?.currentUser?.uid, tp);
-    }
+    }, [user, tpToday]);
+
     return (
-        <div className="md:container px-5 dark:bg-darkBg dark:text-darkTxt md:px-40 py-10">
+        <div className=" px-5 dark:bg-darkBg dark:text-darkTxt md:px-40 py-10">
             <ToastContainer
                 position="top-center"
                 autoClose={2000}
                 hideProgressBar={false}
                 closeOnClick
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
                 theme={isDark}
                 transition={Slide}
             />
@@ -332,6 +394,7 @@ function App() {
                     <HashLoader color="#fff" loading={loading} />
                 </div>
             </div>
+
             <div className={`duration-500 ${loading ? "filter blur-md" : ""}`}>
                 {isLoggedIn ? (
                     <div>
@@ -349,18 +412,19 @@ function App() {
                                     Previously
                                 </div>
                                 <div className="px-2 flex md:flex-col-reverse gap-3 mt-5 overflow-x-scroll sbar">
-                                    {prevTodosTp.map((tp) => (
-                                        <PrevTodos
-                                            key={tp}
-                                            id={tp}
-                                            handleSelectDay={() =>
-                                                onSelectDay(tp)
-                                            }
-                                            isSelected={tp === selectedDay}
-                                        >
-                                            {getDay(tp, "short")}
-                                        </PrevTodos>
-                                    ))}
+                                    {prevTodosTp !== null &&
+                                        prevTodosTp.map((tp, index) => (
+                                            <PrevTodos
+                                                key={index}
+                                                id={index}
+                                                handleSelectDay={() =>
+                                                    onSelectDay(tp)
+                                                }
+                                                isSelected={tp === selectedDay}
+                                            >
+                                                {getDay(tp, "short")}
+                                            </PrevTodos>
+                                        ))}
                                 </div>
                             </div>
                             <div
