@@ -214,6 +214,7 @@ function App() {
         if (btn === "clr") {
             setBtn("");
             deleteCompleted();
+            setBtn("all");
         } else if (btn === "act") {
             finalArr = [];
             arr.forEach((element) => {
@@ -238,6 +239,7 @@ function App() {
 
     // upload and fetch!
     const referance = collection(db, "todos");
+
     const uploadTodos = async (day) => {
         if (jsonObject.length !== 0) {
             setLoading(true);
@@ -257,7 +259,7 @@ function App() {
                     const existingTodos =
                         (await getDoc(docRef)).data().todos || [];
 
-                    // Update existing todos based on their properties
+                    // Update existing todos set true for completed
                     const updatedTodos = existingTodos.map((existingTodo) => {
                         const matchingNewTodo = jsonObject.find(
                             (newTodo) =>
@@ -283,11 +285,32 @@ function App() {
                     // Concatenate updated existing todos with new todos
                     const finalTodos = updatedTodos.concat(newTodos);
 
+                    // Delete todos that are in existingTodos but not in jsonObject
+                    const deletedTodos = existingTodos.filter(
+                        (existingTodo) =>
+                            !jsonObject.some(
+                                (newTodo) =>
+                                    existingTodo.date === newTodo.date &&
+                                    existingTodo.todo === newTodo.todo
+                            )
+                    );
+
+                    // update
                     await updateDoc(docRef, { todos: finalTodos });
+
+                    // Delete todos that are not in jsonObject
+                    deletedTodos.forEach(async (todoToDelete) => {
+                        await updateDoc(docRef, {
+                            todos: finalTodos.filter(
+                                (finalTodo) =>
+                                    finalTodo.date !== todoToDelete.date ||
+                                    finalTodo.todo !== todoToDelete.todo
+                            ),
+                        });
+                    });
 
                     toast("Todos updated!");
                 } else {
-                    // No existing documents, add a new one
                     await addDoc(referance, {
                         createdBy: currentUserID,
                         date: day,
@@ -490,12 +513,12 @@ function App() {
                                         >
                                             Completed
                                         </Btn>
-                                        <Btn
-                                            handleBtn={() => navBtns("clr")}
-                                            active={false}
+                                        <button
+                                            className="opacity-50 active:opacity-100 duration-200"
+                                            onClick={() => navBtns("clr")}
                                         >
                                             Clear Completed
-                                        </Btn>
+                                        </button>
                                     </BottomNav>
                                 </div>
                             </div>
