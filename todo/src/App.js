@@ -62,8 +62,6 @@ function App() {
         } catch (err) {
             console.error(err);
         }
-
-        console.log(isLoggedIn);
     };
 
     useEffect(
@@ -80,7 +78,6 @@ function App() {
     );
 
     let user = localStorage.getItem("user");
-
     function getDay(tp, type) {
         let date = tp !== null ? new Date(tp) : new Date();
         let day = date.getDay();
@@ -389,17 +386,18 @@ function App() {
         }
     }
     useEffect(() => {
-        try {
-            if (user !== "") {
-                setIsLoggedIn(true);
-                fetchData(user, tpToday);
-                // fetchDates();
-                fetchData(user, null);
+        if (isLoggedIn) {
+            try {
+                if (user !== "") {
+                    setIsLoggedIn(true);
+                    fetchData(user, tpToday);
+                    fetchData(user, null);
+                }
+            } catch (error) {
+                console.error(error);
             }
-        } catch (error) {
-            console.error(error);
         }
-    }, [user, tpToday]);
+    }, [user, tpToday, isLoggedIn]);
 
     return (
         <div className=" px-5 dark:bg-darkBg dark:text-darkTxt md:px-40 py-10">
@@ -423,7 +421,7 @@ function App() {
 
             <div className={`duration-500 ${loading ? "filter blur-md" : ""}`}>
                 {isLoggedIn ? (
-                    <div>
+                    <div className="slide-fwd-center">
                         <div className="text-center mb-10">
                             <h1 className="text-9xl text-pink font-title animate-fade-in">
                                 Todos
