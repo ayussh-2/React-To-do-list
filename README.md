@@ -20,6 +20,9 @@ The application is live and can be accessed [here](https://react-todo-4f20b.web.
 - Responsive design for a seamless experience across devices.
 - Intuitive and user-friendly interface.
 
+## Future Updates:
+- Add a forgotPassword option!
+
 ## Getting Started
 
 1. **Clone the repository:**
