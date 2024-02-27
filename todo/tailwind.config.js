@@ -18,6 +18,9 @@ module.exports = {
                 contM: "20rem",
                 hScreen: "100vh",
             },
+            fontSize: {
+                mid: "1.15rem",
+            },
         },
         fontFamily: {
             nav: ["Poppins"],

@@ -13,7 +13,7 @@ function Modal({ toggleRecom, children, saveReccomendation }) {
                 <textarea
                     type="text"
                     rows={5}
-                    className="md:text-xl bg-text text-sm md:pr-52 md:py-5 p-3 rounded-md outline-none italic dark:bg-darkSubCard  dark:border-none w-full resize-none hover:resize"
+                    className="md:text-xl bg-text text-sm p-3 rounded-md outline-none italic dark:bg-darkSubCard  dark:border-none w-full resize-none hover:resize"
                     id="userRecom"
                 />
                 <div className="text-center mt-5">

@@ -7,7 +7,6 @@ function BottomNav({ itemsLeft, children }) {
                 ) : (
                     <>
                         <span className="">No new task!</span>
-                        <span className="md:text-2xl text-base">🤓</span>
                     </>
                 )}
             </div>

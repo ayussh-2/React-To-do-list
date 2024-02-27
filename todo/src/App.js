@@ -38,6 +38,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [prevTodosTp, setPrevTodosTp] = useState(null);
     const [showRecom, setShowRecom] = useState(false);
+    const [showCalender, setShowCalender] = useState(false);
     const [isDark, setIsDark] = useState("dark");
     const handleTheme = () => {
         setIsDark(isDark === "dark" ? "light" : "dark");
@@ -140,7 +141,7 @@ function App() {
             setRenderAgain(renderAgain);
             document.getElementById("todo").value = "";
         } else {
-            toast("Enter todos 🥲");
+            toast("Enter todos!!");
         }
     }
 
@@ -358,6 +359,11 @@ function App() {
                 if (data.length !== 0) {
                     setRenderAgain(returnTodos(data[0]["todos"]));
                     setArr(data[0]["todos"]);
+                } else {
+                    if (desiredDate !== tpToday) {
+                        toast("Sorry Todos for selected day does not exist!");
+                        onSelectDay(tpToday);
+                    }
                 }
                 // console.log(data);
             } catch (err) {
@@ -387,7 +393,7 @@ function App() {
                     });
                     dates.push(tpToday);
 
-                    setPrevTodosTp(dates.sort((a, b) => a - b));
+                    setPrevTodosTp(dates.sort((a, b) => b - a));
                 }
             } catch (err) {
                 console.error(err);
@@ -436,6 +442,23 @@ function App() {
             toast("Sorry please write something!");
         }
     }
+
+    function calender() {
+        setShowCalender(true);
+    }
+
+    function setCalenderDate() {
+        let date = document.getElementById("date").value;
+        if (date !== "") {
+            let adjustedDate = new Date(date);
+            adjustedDate.setHours(0, 0, 0, 0);
+            let timestamp = adjustedDate.getTime();
+            onSelectDay(timestamp);
+        } else {
+            toast("No dates were selected!");
+        }
+        setShowCalender(false);
+    }
     return (
         <div className=" px-5 dark:bg-darkBg dark:text-darkTxt md:px-40 py-10">
             <ToastContainer
@@ -468,11 +491,29 @@ function App() {
                         What did you wish for ?
                     </Modal>
                 </div>
+                <div
+                    id="calender"
+                    className={`flex min-h-screen justify-center items-center absolute z-50 flex-col gap-10 ${
+                        showCalender ? "animate-fade-in" : "hidden"
+                    }`}
+                >
+                    <input
+                        type="date"
+                        id="date"
+                        className="md:text-xl bg-text text-sm p-3 rounded-md outline-none italic dark:bg-darkSubCard  dark:border-none w-full"
+                    />
+                    <button
+                        className="py-3 md:px-5 px-6 border-2 bg-darkLightBlack text-white rounded-md duration-500 hover:opacity-60 active:scale-110 dark:bg-darkLightBlack dark:text-white border-none"
+                        onClick={() => setCalenderDate()}
+                    >
+                        Confirm
+                    </button>
+                </div>
             </div>
 
             <div
                 className={`duration-500 ${
-                    loading || showRecom ? "filter blur-md" : ""
+                    showCalender || loading || showRecom ? "filter blur-md" : ""
                 }`}
             >
                 {isLoggedIn ? (
@@ -487,10 +528,17 @@ function App() {
                                 id="sideBar"
                                 className="md:w-1/4 mt-5 bg-white rounded-md md:p-10 p-2 dark:bg-darkCard fadeIn"
                             >
-                                <div className="text-pink font-date text-center md:text-3xl text-xl">
-                                    Previously
+                                <div className="text-pink font-date flex items-center justify-between text-center md:text-3xl text-xl">
+                                    <p>Previously</p>
+                                    <button
+                                        className="hover:opacity-55 duration-200 active:-translate-y-1"
+                                        onClick={() => calender()}
+                                    >
+                                        <i class="fa-solid fa-calendar-days text-mid"></i>
+                                    </button>
                                 </div>
-                                <div className="px-2 flex md:flex-col-reverse gap-3 mt-5 overflow-x-scroll sbar">
+
+                                <div className="px-2 flex md:flex-col gap-3 mt-5 overflow-x-scroll sbar">
                                     {prevTodosTp !== null ? (
                                         prevTodosTp.map((tp, index) => (
                                             <PrevTodos
