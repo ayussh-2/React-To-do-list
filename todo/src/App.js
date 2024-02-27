@@ -21,8 +21,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Slide } from "react-toastify";
 import HashLoader from "react-spinners/HashLoader";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Extras } from "./components/Todo/Extras";
+import Modal from "./components/elements/Modal";
 
 function App() {
     const today = new Date();
@@ -36,6 +37,7 @@ function App() {
     const [btn, setBtn] = useState("all");
     const [loading, setLoading] = useState(false);
     const [prevTodosTp, setPrevTodosTp] = useState(null);
+    const [showRecom, setShowRecom] = useState(false);
     const [isDark, setIsDark] = useState("dark");
     const handleTheme = () => {
         setIsDark(isDark === "dark" ? "light" : "dark");
@@ -77,7 +79,8 @@ function App() {
         [arr]
     );
 
-    let user = localStorage.getItem("user");
+    // let user = localStorage.getItem("user");
+    let user = auth?.currentUser?.uid;
     function getDay(tp, type) {
         let date = tp !== null ? new Date(tp) : new Date();
         let day = date.getDay();
@@ -117,6 +120,9 @@ function App() {
     }
 
     function onSelectDay(tp) {
+        if (tp === tpToday) {
+            setArr([]);
+        }
         setSelectedDay(tp);
         fetchData(user, tp);
     }
@@ -167,6 +173,9 @@ function App() {
         setArr(finalArr);
     }
 
+    function toggleRecom() {
+        setShowRecom(!showRecom);
+    }
     function returnTodos(arr) {
         return (
             <div className="flex flex-col-reverse">
@@ -372,11 +381,13 @@ function App() {
                 });
                 if (data.length !== 0) {
                     let dates = [];
+
                     data.forEach((element) => {
                         dates.push(element.date);
                     });
+                    dates.push(tpToday);
 
-                    setPrevTodosTp(dates);
+                    setPrevTodosTp(dates.sort((a, b) => a - b));
                 }
             } catch (err) {
                 console.error(err);
@@ -399,6 +410,32 @@ function App() {
         }
     }, [user, tpToday, isLoggedIn]);
 
+    function saveReccomendation() {
+        let userReccomendation = document.getElementById("userRecom").value;
+        // console.log(userReccomendation)
+        if (userReccomendation !== "") {
+            setLoading(true);
+            async function saveUserRecomm(userInput) {
+                try {
+                    await addDoc(collection(db, "userReviews"), {
+                        from: user,
+                        suggestion: userInput,
+                        timeStamp: tpToday,
+                    });
+                    toast("Your requests have been noted 📝");
+                } catch (err) {
+                    console.error(err);
+                    toast("Some problems from our side please try again!");
+                } finally {
+                    setLoading(false);
+                    setShowRecom(false);
+                }
+            }
+            saveUserRecomm(userReccomendation);
+        } else {
+            toast("Sorry please write something!");
+        }
+    }
     return (
         <div className=" px-5 dark:bg-darkBg dark:text-darkTxt md:px-40 py-10">
             <ToastContainer
@@ -411,15 +448,33 @@ function App() {
             />
             <div className="flex justify-center">
                 <div
+                    id="loader"
                     className={`flex min-h-screen justify-center items-center absolute z-50 ${
                         loading ? "animate-fade-in" : "hidden"
                     }`}
                 >
                     <HashLoader color="#fff" loading={loading} />
                 </div>
+                <div
+                    id="modal"
+                    className={`flex min-h-screen justify-center items-center absolute z-40 ${
+                        showRecom ? "zoom-in" : "hidden"
+                    }`}
+                >
+                    <Modal
+                        toggleRecom={toggleRecom}
+                        saveReccomendation={saveReccomendation}
+                    >
+                        What did you wish for ?
+                    </Modal>
+                </div>
             </div>
 
-            <div className={`duration-500 ${loading ? "filter blur-md" : ""}`}>
+            <div
+                className={`duration-500 ${
+                    loading || showRecom ? "filter blur-md" : ""
+                }`}
+            >
                 {isLoggedIn ? (
                     <div className="slide-fwd-center">
                         <div className="text-center mb-10">
@@ -469,7 +524,7 @@ function App() {
                                                 isDark === "dark"
                                                     ? "fa-sun"
                                                     : "fa-moon"
-                                            } scale-125 hover:scale-150 active:scale-150 text-pink duration-500 active:rotate-45 cursor-pointer`}
+                                            } scale-125 hover:scale-150 active:scale-150 text-pink duration-500 active:rotate-45 cursor-pointer fa-solid`}
                                         ></i>
                                         <i
                                             class="fa-solid fa-right-from-bracket text-pink hover:scale-125 cursor-pointer active:scale-150 duration-200"
@@ -520,6 +575,14 @@ function App() {
                                     </BottomNav>
                                 </div>
                             </div>
+                        </div>
+                        <div className="text-right">
+                            <button
+                                className="italic duration-300 cool-link hover:tracking-wider  text-sm opacity-80 hover:opacity-100"
+                                onClick={() => toggleRecom()}
+                            >
+                                Recommend Something?
+                            </button>
                         </div>
                     </div>
                 ) : (

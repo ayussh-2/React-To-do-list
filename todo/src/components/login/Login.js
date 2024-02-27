@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { auth, googleAuth } from "../config/firebase";
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signInWithPopup,
     fetchSignInMethodsForEmail,
+    setPersistence,
+    browserSessionPersistence,
+    onAuthStateChanged,
 } from "firebase/auth";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,11 +21,28 @@ function Login({ handleLogin }) {
     const [newUser, setNewUser] = useState(false);
     let [isLoading, setIsLoading] = useState(false);
     const [forgotPassword, setForgotPassword] = useState(false);
+
+    useEffect(() => {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                handleLogin();
+            } else {
+                console.log("Login");
+            }
+        });
+    });
     const login = async () => {
         if (mail !== "" && password !== "") {
             setIsLoading(true);
             try {
-                await signInWithEmailAndPassword(auth, mail, password);
+                setPersistence(auth, browserSessionPersistence)
+                    .then(() => {
+                        return signInWithEmailAndPassword(auth, mail, password);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+                // await signInWithEmailAndPassword(auth, mail, password);
                 setIsLoading(false);
                 await handleLogin();
             } catch (err) {
@@ -44,15 +64,23 @@ function Login({ handleLogin }) {
     const googleLogin = async () => {
         setIsLoading(true);
         try {
-            await signInWithPopup(auth, googleAuth);
+            setPersistence(auth, browserSessionPersistence)
+                .then(() => {
+                    return signInWithPopup(auth, googleAuth);
+                })
+                .then((result) => {
+                    // const user = result.user;
+                    handleLogin();
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+            // await signInWithPopup(auth, googleAuth);
             setIsLoading(false);
-            await handleLogin();
         } catch (err) {
             console.error(err);
             setIsLoading(false);
             toast("Some error has occoured!");
-        } finally {
-            localStorage.setItem("user", auth?.currentUser?.uid);
         }
     };
 
