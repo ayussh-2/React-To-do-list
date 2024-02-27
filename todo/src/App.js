@@ -391,7 +391,10 @@ function App() {
                     data.forEach((element) => {
                         dates.push(element.date);
                     });
-                    dates.push(tpToday);
+
+                    if (!dates.includes(tpToday)) {
+                        dates.push(tpToday);
+                    }
 
                     setPrevTodosTp(dates.sort((a, b) => b - a));
                 }
