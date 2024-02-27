@@ -1,4 +1,4 @@
-# Todo-list - React Web Application with Google Auth 📝✨
+# Todo-list - React Web Application with Firebase🔥 📝
 
 Welcome to Todo-list, a simple and efficient React-based Todo List application with Google authentication. Keep track of your tasks with ease!
 
